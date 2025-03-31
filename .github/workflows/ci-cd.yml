@@ -1,0 +1,44 @@
+name: Python CI/CD Pipeline
+
+on: [push]  # Triggers on every git push
+
+jobs:
+  test:  # Job 1: Run tests
+    runs-on: ubuntu-latest  # Uses a fresh Ubuntu VM
+
+    steps:
+      # Step 1: Check out the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Set up Python
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      # Step 4: Run pytest
+      - name: Run tests
+        run: pytest
+
+  deploy:  # Job 2: Deploy to Heroku (only if tests pass)
+    needs: test  # Depends on the 'test' job
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Step 2: Deploy to Heroku
+      - name: Deploy to Heroku
+        uses: akhileshns/heroku-deploy@v3
+        with:
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: "cicdex1"  # Replace with your Heroku app name
+          heroku_email: "fatraze@gmail.com"
